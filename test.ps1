@@ -20,11 +20,11 @@ try {
 
     # Verify the file exists before trying to extract
     if (Test-Path -Path $zipFilePath) {
-        Write-Output "Extracting files to root folder: $rootFolder..."
+        Write-Output "Extracting files to root folder: $tmpFolder..."
         
         # Unzip the contents into the root folder
         # The -Force flag will overwrite files with the same name if they already exist
-        Expand-Archive -Path $zipFilePath -DestinationPath $rootFolder
+        Expand-Archive -Path $zipFilePath -DestinationPath $tmpFolder
         
         Write-Output "Extraction complete."
     }
@@ -33,8 +33,46 @@ catch {
     Write-Error "An error occurred during the download or extraction process: $_"
 }
 
+Write-Output "Moving lib files..."
+Write-Output "Current lib path = $( Join-Path -Path $folderStructure -ChildPath "lib")"
+
+Get-ChildItem -Path ( Join-Path -Path $folderStructure -ChildPath "lib") -Recurse | 
+    Where-Object {
+
+            $_.Name -match '\.a|\.la'
+        } | 
+        ForEach-Object {
+            Move-Item -Path $_.FullName -Destination(
+
+                    Join-Path -Path $rootFolder -ChildPath "lib"
+                )}
+
+Write-Output "Moving lib files complete."
+
+Write-Output "Moving bin files..."
+Write-Output "Current bin path = $( Join-Path -Path $folderStructure -ChildPath "bin")"
+
+Get-ChildItem -Path ( Join-Path -Path $folderStructure -ChildPath "bin") -Recurse | 
+    Where-Object {
+
+            $_.Name -match '\.dll'
+        } | 
+        ForEach-Object {
+            Move-Item -Path $_.FullName -Destination(
+
+                    Join-Path -Path $rootFolder -ChildPath "bin"
+                )}
+
+Write-Output "Moving bin files complete."
+
+Write-Output "Moving include files..."
+Write-Output "Current include path = $( Join-Path -Path $folderStructure -ChildPath "include")"
+
+Move-Item -Path (Join-Path -Path $folderStructure -ChildPath "include") -Destination (Join-Path -Path $rootFolder -ChildPath "include")
+
+Write-Output "Moving include files complete."
+
+
 # Uncomment the next two lines if you want to automatically delete the tmp folder and the zip file after extraction
-#Remove-Item -Path $tmpFolder -Recurse -Force
-#Write-Output "Cleaned up the temporary folder."
-
-
+Remove-Item -Path $tmpFolder -Recurse -Force
+Write-Output "Cleaned up the temporary folder."

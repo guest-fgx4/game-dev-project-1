@@ -1,3 +1,6 @@
 include/SDL2/*
 bin/SDL2.dll
 lib/libSDL2*
+build
+.vscode/
+*.exe

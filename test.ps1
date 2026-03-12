@@ -76,3 +76,9 @@ Write-Output "Moving include files complete."
 # Uncomment the next two lines if you want to automatically delete the tmp folder and the zip file after extraction
 Remove-Item -Path $tmpFolder -Recurse -Force
 Write-Output "Cleaned up the temporary folder."
+
+Write-Output "Including .DLLs on path..."
+
+$env:Path += (Join-Path -Path $rootFolder -ChildPath "bin")
+
+Write-Output "Done."
